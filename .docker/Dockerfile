@@ -9,14 +9,17 @@ RUN npm ci
 RUN npm run build
 
 # Stage 2: Go Builder
-FROM golang:latest AS go-builder
+FROM --platform=$BUILDPLATFORM golang:latest AS go-builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 COPY . /tmp/build
 COPY --from=node-builder /tmp/build/out /tmp/build/web
 
 WORKDIR /tmp/build
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o seanime -trimpath -ldflags="-s -w"
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o seanime -trimpath -ldflags="-s -w"
 
 # Stage 3: Final Stage (Alpine Linux with qBittorrent, and Supervisord)
 FROM alpine:latest
