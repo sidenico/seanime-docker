@@ -1,4 +1,6 @@
-# Seanime Docker
+# Multi-Platform Seanime Docker
+
+Same as [Coyenn/seanime-docker](https://github.com/Coyenn/seanime-docker) but with multi-platform support (arm64).
 
 A simple, all-in-one Docker image for [Seanime](https://seanime.rahim.app/).
 
@@ -10,7 +12,7 @@ Video transcoding via [FFmpeg](https://ffmpeg.org/) works out of the box.
 ### Docker CLI
 
 ```bash
-docker run -it -p 3000:8080 -p 3001:8081 --restart=always --name seanime coyann/seanime
+docker run -it -p 3000:8080 -p 3001:8081 --restart=always --name seanime ncrqnt/seanime
 ```
 
 ### Docker Compose
@@ -18,7 +20,7 @@ docker run -it -p 3000:8080 -p 3001:8081 --restart=always --name seanime coyann/
 ```yaml
 services:
   seanime:
-    image: coyann/seanime
+    image: ncrqnt/seanime
     container_name: seanime
     ports:
       - "3000:8080" # Seanime web interface
