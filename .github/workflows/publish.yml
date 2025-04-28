@@ -2,6 +2,7 @@ name: Publish Docker image
 
 on:
   workflow_dispatch:
+  push:
   repository_dispatch:
     types: [seanime_release]
   schedule:
@@ -18,6 +19,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Get latest release of 5rahim/seanime
         id: seanime_release
@@ -26,16 +29,28 @@ jobs:
           echo "LATEST_RELEASE=${LATEST_RELEASE}" >> $GITHUB_OUTPUT
           echo "Latest 5rahim/seanime release: ${LATEST_RELEASE}"
 
+      - name: Check commit message for build flag
+        id: check_commit
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" == *"[build]"* ]]; then
+            echo "FORCE_BUILD=true" >> $GITHUB_OUTPUT
+            echo "Build force flag detected in commit message"
+          else
+            echo "FORCE_BUILD=false" >> $GITHUB_OUTPUT
+            echo "No build force flag in commit message"
+          fi
+
       - name: Check if build is needed
         id: check_build
         run: |
           CURRENT_VERSION=$(cat .version 2>/dev/null || echo "none")
-          if [ "${{ steps.seanime_release.outputs.LATEST_RELEASE }}" != "${CURRENT_VERSION}" ]; then
+          if [ "${{ steps.seanime_release.outputs.LATEST_RELEASE }}" != "${CURRENT_VERSION}" ] || [ "${{ steps.check_commit.outputs.FORCE_BUILD }}" == "true" ]; then
             echo "BUILD_NEEDED=true" >> $GITHUB_OUTPUT
-            echo "New version detected. Build needed."
+            echo "Build needed due to new version or force flag"
           else
             echo "BUILD_NEEDED=false" >> $GITHUB_OUTPUT
-            echo "No new version. Skipping build."
+            echo "No new version and no force flag. Skipping build."
           fi
 
       - name: Prepare the repository
