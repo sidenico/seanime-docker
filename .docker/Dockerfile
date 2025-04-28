@@ -46,14 +46,6 @@ WORKDIR /app
 # Password: adminadmin
 COPY ./.docker/config /config
 
-# Create and use seanime-user
-RUN adduser -D seanime-user
-RUN chown -R seanime-user:seanime-user /config
-RUN chown -R seanime-user:seanime-user /data
-RUN chown -R seanime-user:seanime-user /var/log/supervisor
-
-USER seanime-user
-
 # Define volumes for persistent data
 VOLUME /data
 VOLUME /config
